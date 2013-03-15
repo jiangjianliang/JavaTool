@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Paper> 
+  <pc short="aa"> 
+    <pi title="title 1" author="JJL"/>  
+    <pi title="title 2" author="JJL2"/> 
+  </pc>  
+  <pc short="CLL02"> 
+    <pi title="Efﬁcient and Precise Datarace Detection for Multithreaded Object-oriented Programs" author="Jong-Deok Choi  &amp;&amp; Keunwoo Lee &amp;&amp; Alexey Loginov"/> 
+  </pc>  
+  <pc short="GS00"> 
+    <pi title="Fast Escape Analysis and Stack Allocation for Object-Based Programs" author="David Gay &amp;&amp; Bjarne Steensgaard"/> 
+  </pc>  
+  <pc short="CWY11"> 
+    <pi title="HEAT: a combined approach for thread escape analysis" author="Qichang Chen &amp;&amp; Liqiang Wang &amp;&amp; Zijiang Yang"/> 
+  </pc>  
+  <pc short="CWY12"> 
+    <pi title="SAM: Self-adaptive Dynamic Analysis for Multithreaded Programs" author="Qichang Chen &amp;&amp; Liqiang Wang &amp;&amp; Zijiang Yang"/> 
+  </pc>  
+  <pc short="LM06">
+    <pi title="A Two-Phase Escape Analysis for Parallel Java Programs" author="Kyungwoo Lee &amp;&amp; Samuel.P. Midkiff"/>
+  </pc>
+</Paper>
