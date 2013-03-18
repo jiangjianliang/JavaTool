@@ -6,5 +6,5 @@
 *.ear
 
 .classpath
-.project
+#.project
 org.eclipse.jdt.core.prefs
