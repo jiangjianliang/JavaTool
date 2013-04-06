@@ -1,53 +1,101 @@
 package com.wander.dancing;
 
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DancingLink {
 	private AbstractNode iHeader = new HeaderNode();;
-	private AbstractNode[] headerRow;
+	private AbstractNode[] headRow;
+	private AbstractNode[] headFlatRow;
+	private AbstractNode[] headDataCol;
+	private AbstractNode[] headFlatCol;
 
 	private NodeStack prevSelect = new NodeStack();
 
 	public DancingLink() {
+		// m*n Matrix
+		int m = 4;
+		int n = 5;
+		headRow = new AbstractNode[n];
+		headFlatRow = new AbstractNode[n];
+		headDataCol = new AbstractNode[m];
+		headFlatCol = new AbstractNode[m];
 
+		// initial head row
+		headRow[0] = new HeaderNode();
+		headRow[0].insert(iHeader, iHeader);
+		headFlatRow[0] = headRow[0];
+		for (int i = 1; i < n; i++) {
+			headRow[i] = new HeaderNode();
+			headRow[i].insert(headRow[i - 1], iHeader);
+			headFlatRow[i] = headRow[i];
+		}
+		// TODO initial the matrix, suppose we have a m*n matrix
+		// in matrix, 1 represent an element
+		int[][] matrix = { { 11, 12, 13, 0, 0 }, { 0, 0, 0, 0, 25 },
+				{ 0, 32, 33, 0, 0 }, { 41, 0, 0, 44, 0 } };
+		for (int rowIndex = 0; rowIndex < m; rowIndex++) {
+			boolean isFirst = true;
+			for (int colIndex = 0; colIndex < n; colIndex++) {
+				if (matrix[rowIndex][colIndex] != 0) {
+					AbstractNode node = new DataNode();
+					((DataNode) node).setValue(new NodeValue(
+							matrix[rowIndex][colIndex]));
+					if (isFirst) {
+						headDataCol[rowIndex] = node;
+						headFlatCol[rowIndex] = node;
+						isFirst = false;
+					}
+					node.insert(headFlatCol[rowIndex], headDataCol[rowIndex],
+							headFlatRow[colIndex], headRow[colIndex]);
+					headFlatCol[rowIndex] = node;
+					headFlatRow[colIndex] = node;
+				}
+			}
+		}
+		/*
+		for(int j = 0; j < n; j++){
+			AbstractNode col = headRow[j];
+			do{
+				System.out.print(col+",");
+				col = col.down;
+			}while(col != headRow[j]);			
+			System.out.println("+++++++++++++++");
+		}
+		
+		for(int k = 0; k<m; k++){
+			AbstractNode row = headDataCol[k];
+			do{
+				System.out.print(row+",");
+				row = row.right;
+			}while(row != headDataCol[k]);
+		}
+		*/
 	}
 
 	/**
 	 * 算法运行主框架
 	 */
-	public void run() {
-		while (hasMoreCol()) {
-			AbstractNode choice = doSelection((HeaderNode) iHeader.left);
-			if (choice == null) {
-				// 需要回溯
-				System.err.println("error in selecting nodes");
-
-				System.exit(-1);
-			}
-
-		}
-	}
-
 	public void recRun() {
+		System.err.println("in rec");
 		if (!hasMoreCol()) {
 			System.out.println("we have one solution");
+			System.out.println(prevSelect);
 			return;
 		}
-		AbstractNode iterator = iHeader.left;
-		do {
-			AbstractNode choice = null;
-			do {
-				choice = doSelection((HeaderNode) iterator);
-				if (choice != null) {
-					doForward(choice);
-					recRun();
-					doBackward(choice);
-				}
-			} while (choice != null);
+		AbstractNode headItr = iHeader.right;
 
-			iterator = iterator.left;
-		} while (iterator != iHeader);
+		List<AbstractNode> dataList = doSelection((HeaderNode) headItr);
+		if (dataList.isEmpty()) {
+			System.out.println("this path is wrong");
 
+		}
+		for (AbstractNode choice : dataList) {
+			doForward(headItr, choice);
+			recRun();
+			doBackward(headItr, choice);
+		}
+		return;
 	}
 
 	/**
@@ -64,21 +112,16 @@ public class DancingLink {
 	 * @param first
 	 * @return
 	 */
-	private AbstractNode doSelection(HeaderNode head) {
-		if (prevSelect.existNode((HeaderNode) head)) {
-			StackElement top =prevSelect.pop();
-			if(top.data.down == head){
-				return null;
-			}
-			else{
-				top.data = (DataNode) top.data.down;
-				prevSelect.push(top);
-			}
-		} else {
-			//是否应该考虑head.down指向自身的情况
-			prevSelect.push(new StackElement(head, (DataNode) head.down));
+	private List<AbstractNode> doSelection(HeaderNode head) {
+		List<AbstractNode> list = new ArrayList<AbstractNode>();
+		if (head.down != head) {
+			AbstractNode itr = head.down;
+			do {
+				list.add(itr);
+				itr = itr.down;
+			} while (itr != head);
 		}
-		return null;
+		return list;
 	}
 
 	/**
@@ -86,80 +129,47 @@ public class DancingLink {
 	 * 
 	 * @param choice
 	 */
-	public void doForward(AbstractNode choice) {
+	public void doForward(AbstractNode head, AbstractNode choice) {
 		if (choice instanceof HeaderNode) {
 			// do nothing
 			return;
 		}
-		// 遍历节点所在行
-		AbstractNode next = choice;
+		StackElement top = new StackElement((HeaderNode) head,
+				(DataNode) choice);
+		prevSelect.push(top);
+		AbstractNode rowItr = choice;
 		do {
-			// 找出这些‘同义’行
-			AbstractNode col = next;
+			AbstractNode colItr = rowItr.down;
 			do {
-				if (col instanceof HeaderNode) {
-					// do nothing, in case HeadNode
-					return;
+				if(colItr instanceof HeaderNode){
+					colItr = colItr.down;
+					continue;
 				}
-				// 遍历‘同义’行,找到列
-				AbstractNode col2 = col;
-				do {
-					// 删除‘同义行’的列
-					((DataNode) col2).removeFromCol();
-					col2 = col.left;// 遍历行
-				} while (col2 != col);
+				prevSelect.top().pushDropRow(colItr);
+				colItr.removeFromRow();
+				colItr = colItr.down;
+			} while (colItr != rowItr);
+			prevSelect.top().pushDropCol(rowItr);
+			rowItr.removeFromCol();
+			rowItr = rowItr.right;
+		} while (rowItr != choice);
 
-				// 删除‘同义’行
-				((DataNode) col).removeFromRow();
-
-				col = next.down;// 遍历列
-			} while (col != next);
-
-			next = choice.left;
-		} while (next != choice);
-
-		// 最后删除这个节点所在行
-		((DataNode) choice).removeFromRow();
+		rowItr.removeFromRow();
 	}
 
 	/**
-	 * 算法撤销一步 如何保证不会过分的还原 假设存在另一个行和当前选择的行或者其'同义'行存在公共列, 这样的列会被移除,从而不存在
+	 * 回溯一步
 	 * 
 	 * @param choice
 	 */
-	public void doBackward(AbstractNode choice) {
-		if (choice instanceof HeaderNode) {
-			// do nothing
-			return;
+	public void doBackward(AbstractNode head, AbstractNode choice) {
+		StackElement top = prevSelect.pop();
+		top.data.restoreToRow();
+		while (top.hasCol()) {
+			top.popDropCol().restoreToCol();
 		}
-
-		((DataNode) choice).restoreToRow();
-		// 遍历节点所在行
-		AbstractNode next = choice;
-		do {
-			// 找出这些‘同义’行
-			AbstractNode col = next;
-			do {
-				if (col instanceof HeaderNode) {
-					// do nothing, in case HeadNode
-					return;
-				}
-
-				((DataNode) col).restoreToRow();
-
-				// 遍历‘同义’行,找到列
-				AbstractNode col2 = col;
-				do {
-					// 删除‘同义行’的列
-					((DataNode) col2).restoreToCol();
-					col2 = col.left;// 遍历行
-				} while (col2 != col);
-
-				col = next.down;// 遍历列
-			} while (col != next);
-
-			next = choice.left;
-		} while (next != choice);
-
+		while (top.hasRow()) {
+			top.popDropRow().restoreToRow();
+		}
 	}
 }

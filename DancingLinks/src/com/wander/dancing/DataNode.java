@@ -31,4 +31,35 @@ public class DataNode extends AbstractNode {
 			iterator = iterator.right;
 		} while (iterator != this);
 	}
+
+	@Override
+	public void removeFromCol() {
+		AbstractNode next = down;
+		do{
+			if(next instanceof HeaderNode){
+				next.removeFromCol();
+				break;
+			}
+			next = next.down;
+		}while(next != this);
+	}
+
+	@Override
+	public void restoreToCol() {
+		AbstractNode next = down;
+		do{
+			if(next instanceof HeaderNode){
+				next.restoreToCol();
+				break;
+			}
+			next = next.down;
+		}while(next != this);
+	}
+
+	@Override
+	public String toString() {
+		return content.toString();
+	}
+	
+	
 }
