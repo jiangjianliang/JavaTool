@@ -1,7 +1,18 @@
 package com.wander.tree.bst;
 
+import com.wander.tree.bst.TreeNode.NodeKey;
+
 public class BinarySearchTree implements BinarySearchTreeInterface{
 	
+	/**
+	 * 递归方式查找节点
+	 * @param tree
+	 * @param key
+	 * @return
+	 */
+	public TreeNode searchKeyRec(TreeNode tree, NodeKey key){
+		return null;
+	}
 }
 
 class TreeNode{
