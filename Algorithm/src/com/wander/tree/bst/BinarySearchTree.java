@@ -70,7 +70,7 @@ public class BinarySearchTree implements BinarySearchTreeInterface {
 	 * @param node
 	 * @return
 	 */
-	public TreeNode succTreeNode(TreeNode node){
+	public TreeNode succNode(TreeNode node){
 		if(isEmpty(node)){
 			return null;
 		}
@@ -92,7 +92,7 @@ public class BinarySearchTree implements BinarySearchTreeInterface {
 	 * @param node
 	 * @return
 	 */
-	public TreeNode predecTreeNode(TreeNode node){
+	public TreeNode predecNode(TreeNode node){
 		if(isEmpty(node)){
 			return null;
 		}
